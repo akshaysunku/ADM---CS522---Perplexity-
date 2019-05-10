@@ -1,3 +1,7 @@
+#Copyright 2019, Dan Baciu, Akshay Sunku, Anudeep Paturi, Krishnachaitanya Kilari, Syed Jagirdar, All rights reserved.
+
+
+
 import gzip
 import numpy as np
 from scipy import spatial
