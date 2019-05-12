@@ -42,6 +42,7 @@ def append(x,y):
     col.append(int(y))
     data.append(int(1))
     
+    
 # Creates topic - word matrix
 def word_topic():
     #word-topic matrix
@@ -56,6 +57,7 @@ def word_topic():
     matrix = matrix.div(matrix.sum(axis=1), axis=0)
     matrix = np.exp(matrix)
     return matrix
+
 
 # Creates topic - word matrix to be used in Arun2010 calculation
 def arun_word_topic():
@@ -72,6 +74,7 @@ def arun_word_topic():
     matrix = np.exp(matrix)
     return matrix
 
+
 # retrieves values for document - term matrix
 def read_document_term(path):
     no = 0
@@ -86,12 +89,14 @@ def read_document_term(path):
                 word_store2[word] = int(word_ind)
                 append2(word_ind, col_ind)
 
+
 # Used to later create sparse matrix
 def append2(x,y):
     row2.append(int(x))
     col2.append(int(y))
     data2.append(int(1))  
               
+    
 def document_term():
     #word-topic matrix
     global doc_term_matrix
@@ -102,10 +107,12 @@ def document_term():
     matrix = doc_term_matrix.todense()  #Create dense document - term matrix
     return pd.DataFrame(matrix)
 
+
 #Used to retreive document - topic matrix from the composition.txt file
 def read_document_topic(path):
     document_topic = pd.read_csv(path, sep='\t', header = None)
     return document_topic
+
 
 # Deveaud2014 Perplexity Measure 
 def Deveaud2014(document_topic):  
@@ -123,6 +130,7 @@ def Deveaud2014(document_topic):
     
     return JSD, ncols
     
+
 # Helper function for Deveaud2014
 def jsd(p, q):
     x = 0.0
@@ -131,6 +139,7 @@ def jsd(p, q):
         x += p[i] * math.log(p[i]/q[i])
         y += q[i] * math.log(q[i]/p[i])
     return 0.5 * x + 0.5 * y
+
 
 # CaoJuan2009 Perplexity Measure
 def CaoJuan2009(document_topic):
@@ -148,6 +157,7 @@ def CaoJuan2009(document_topic):
     
     return CaoJuan, ncols
 
+
 # Helper function for CaoJuan2009
 def cosineSim(p, q):
     p = np.array(p)
@@ -157,6 +167,7 @@ def cosineSim(p, q):
     normq = np.linalg.norm(q)
     cos = dot / (normp * normq)
     return cos
+
 
 # Arun2010 Perplexity Measure
 def Arun2010(L, doc_topic, topic_word, alphas):
@@ -174,6 +185,7 @@ def Arun2010(L, doc_topic, topic_word, alphas):
     print('{0} topics: kls = {1}'.format(cm1.shape[0], kls))
     return(kls,cm1.shape[0])
 
+
 # Helper function for Arun2010 to find Kullback-Leibler value
 def kl(p, q):
     x = 0.0
@@ -182,6 +194,7 @@ def kl(p, q):
         x += p[i] * math.log(p[i]/q[i])
         y += q[i] * math.log(q[i]/p[i])
     return x + y
+
 
 # Retreiving alpha values from topic-state and returning in useful format
 def get_alphas(path):
@@ -195,6 +208,7 @@ def get_alphas(path):
                 line = [float(x) for x in line]
                 return line
 
+
 # Plot the results 
 def plot_results(results):
     lists = sorted(results.items())
@@ -203,6 +217,7 @@ def plot_results(results):
     plt.xlabel("Topics")
     plt.ylabel("Perplexity")
     plt.show()
+
 
 # Main method which includes Deveaud2014, CaoJuan2009, and Arun2010 Perplexity Measure
 def main():
@@ -221,19 +236,18 @@ def main():
     # Commence Deveaud2014 Perplexity Measure
     print("Deveaud2014 perplexity results")
     for i in range(len(topic_state_files)):
-        #document_topic = read_document_topic(composition_files[i])
+        document_topic = read_document_topic(composition_files[i])
         #the first two columns were the index and file location, so we delete those two columns
-        #del(document_topic[0])
-        #del(document_topic[1])
-        #document_topic.columns = range(document_topic.shape[1])
-        read_topic_word(topic_state_files[i])
-        topic_word_matrix = word_topic()
-        JSD, ncols = Deveaud2014(topic_word_matrix)
+        del(document_topic[0])
+        del(document_topic[1])
+        document_topic.columns = range(document_topic.shape[1])
+        #read_topic_word(topic_state_files[i])
+        #topic_word_matrix = word_topic()
+        JSD, ncols = Deveaud2014(document_topic)
         jsd_results[ncols] = JSD
     plot_results(jsd_results)
     
     # Commence CaoJuan2009 Perplexity Measure
-    '''
     print("CaoJuan2009 perplexity results")
     for i in range(len(composition_files)):
         document_topic = read_document_topic(composition_files[i])
@@ -246,7 +260,7 @@ def main():
         COS, ncols = CaoJuan2009(document_topic)
         cos_results[ncols] = COS
     plot_results(cos_results)
-    '''
+    
     
     # Commence Arun2010 Perplexity Measure
     print("Arun2010 preplexity results")
@@ -259,6 +273,7 @@ def main():
         document_term_matrix = document_term()
         #for doc_topic matrix
         document_topic = read_document_topic(composition_files[i])
+        #the first two columns were the index and file location, so we delete those two columns
         del(document_topic[0])
         del(document_topic[1])
         #for topic_word matrix
@@ -271,7 +286,7 @@ def main():
         
         arun_results[ncols] = kl
     plot_results(arun_results)
-        
+    
 
 
 if __name__ == "__main__":
